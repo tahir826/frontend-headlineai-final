@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import logo from '@/public/mainLogo.png'
 function page() {
   return (
@@ -14,7 +15,9 @@ function page() {
             <button className='text-white text-xl hover:text-blue-600'>Blog</button>
           </div>
           <div>
+            <Link href="/login">
             <button className='text-white bg-blue-600 border border-blue-700 py-2 px-5 rounded-md mr-10 hover:bg-white hover:border-white hover:text-black'>Login</button>
+            </Link>
           </div>
         </nav>
         <div className='mt-16'>
@@ -33,7 +36,9 @@ function page() {
           <p className='text-white text-xl text-center'>HeadlineAI is an<span className='text-blue-600'> AI-powered</span> news<br />application with a conversational user interface<span className='text-blue-600'> (CUI)</span>, designed to<br />help users query<span className='text-blue-600'> News</span> efficiently</p>
         </div>
         <div className='flex justify-center mt-10'>
+          <Link href="/signup">
           <button className='bg-blue-600 border border-blue-600 px-10 py-3 rounded-lg text-white text-xl hover:border-white hover:text-black hover:bg-white'>Get Started</button>
+          </Link>
         </div>
         <div className='mt-20'>
           <h1 className='text-7xl text-blue-600 flex justify-center'>About</h1>

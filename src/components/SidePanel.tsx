@@ -26,7 +26,7 @@ const Sidebar = () => {
                         </a>
                     </div>
                     <div className="mt-4">
-                        <a href="#" className="text-white hover:text-gray-300">chat no. 1</a>
+                        <a href="/chat" className="text-white hover:text-gray-300">chat no. 1</a>
                     </div>
                     {/* Add more sidebar items here */}
                 </div>
