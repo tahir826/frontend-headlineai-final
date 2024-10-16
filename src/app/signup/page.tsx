@@ -1,4 +1,4 @@
-"use client"
+"use client";
 // src/app/signup/page.tsx
 import Head from 'next/head';
 import Link from 'next/link';
@@ -9,24 +9,31 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when signup starts
 
-    const response = await fetch('http://localhost:8000/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/signup", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-    if (response.ok) {
-      // Redirect to login or home page upon success
-      window.location.href = '/login';
-    } else {
-      const data = await response.json();
-      setError(data.detail);
+      if (response.ok) {
+        window.location.href = '/login'; // Redirect to login after signup
+      } else {
+        const data = await response.json();
+        setError(data.detail);
+      }
+    } catch (error) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false); // Set loading to false when the request is complete
     }
   };
 
@@ -41,7 +48,7 @@ export default function SignupPage() {
         <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
           <div className="text-center">
             <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
-            <p className="mt-2 text-sm text-gray-600">{error}</p>
+            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSignup}>
             <div className="space-y-4">
@@ -85,20 +92,45 @@ export default function SignupPage() {
             <div>
               <button
                 type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                disabled={loading} // Disable the button while loading
+                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                  loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-black'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black`}
               >
-                Sign up
+                {loading ? (
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3V4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                    ></path>
+                  </svg>
+                ) : (
+                  'Sign up'
+                )}
               </button>
             </div>
           </form>
-          {/* Link to Login Page */}
           <div className="text-center mt-6">
-            <p className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600">
               Already have an account?{' '}
               <Link href="/login">
                 <p className="font-medium text-xl text-black hover:text-gray-700">Sign in</p>
               </Link>
-            </p>
+            </div>
           </div>
         </div>
       </div>
