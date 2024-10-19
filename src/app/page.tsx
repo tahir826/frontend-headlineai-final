@@ -1,57 +1,193 @@
-import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import logo from '@/public/mainLogo.png'
-function page() {
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import logo from "@/public/mainLogo.png";
+import UserIcon from "@/components/UserIcon";
+
+// Import token utilities
+import { isTokenExpired, refreshAccessToken } from "@/utils/tokenUtils";
+
+function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+
+  // Auto-scroll function for smooth navigation
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!email || !accessToken) {
+      console.log("User is not logged in or missing access token.");
+      return;
+    }
+
+    // Check if the access token is expired
+    if (isTokenExpired(accessToken)) {
+      console.log("Access token expired, attempting to refresh...");
+      refreshAccessToken()
+        .then((newToken) => {
+          if (newToken) {
+            setIsLoggedIn(true); // Set user as logged in after token refresh
+          }
+        })
+        .catch(() => {
+          console.log("Token refresh failed, logging out.");
+          localStorage.removeItem("email");
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          setIsLoggedIn(false);
+        });
+    } else {
+      setIsLoggedIn(true); // Set user as logged in if access token is valid
+    }
+  }, []);
+
+  const handleLoginClick = () => {
+    router.push("/login");
+  };
+
   return (
-    <main>
-      <div className='bg-black h-full w-auto'>
-        <nav className='flex gap-28 justify-between items-center ml-10'>
-          <Image src={logo} alt='logo' className='h w-72'></Image>
-          <div className='flex gap-8 mr-40'>
-            <button className='text-white text-xl hover:text-blue-600'>Home</button>
-            <button className='text-white text-xl hover:text-blue-600'>About</button>
-            <button className='text-white text-xl hover:text-blue-600'>Features</button>
-            <button className='text-white text-xl hover:text-blue-600'>Blog</button>
-          </div>
-          <div>
-            <Link href="/login">
-            <button className='text-white bg-blue-600 border border-blue-700 py-2 px-5 rounded-md mr-10 hover:bg-white hover:border-white hover:text-black'>Login</button>
+    <main className="bg-black min-h-screen">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-black z-10">
+        <Image src={logo} alt="logo" className="h-auto w-40" />
+        <div className="hidden md:flex gap-8">
+          <button
+            onClick={() => scrollToSection("home")}
+            className="text-white text-xl hover:text-blue-600 transition duration-300"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => scrollToSection("about")}
+            className="text-white text-xl hover:text-blue-600 transition duration-300"
+          >
+            About
+          </button>
+          <button
+            onClick={() => scrollToSection("features")}
+            className="text-white text-xl hover:text-blue-600 transition duration-300"
+          >
+            Features
+          </button>
+          <button
+            onClick={() => scrollToSection("blog")}
+            className="text-white text-xl hover:text-blue-600 transition duration-300"
+          >
+            Blog
+          </button>
+        </div>
+        <div>
+          {isLoggedIn ? (
+            <UserIcon />
+          ) : (
+            <button
+              onClick={handleLoginClick}
+              className="text-white bg-blue-600 border border-blue-700 py-2 px-5 rounded-md hover:bg-white hover:text-black transition duration-300"
+            >
+              Login
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* Home Section */}
+      <section
+        id="home"
+        className="min-h-screen flex flex-col justify-center items-center bg-black text-center"
+      >
+        <p className="text-white text-2xl md:text-4xl lg:text-5xl font-bold">
+          HeadlineAI : <span className="text-blue-600">AI-Powered</span> News Application
+        </p>
+        <div className="mt-6">
+          <p className="text-white text-xl md:text-3xl">Explore The Potential of AI in News</p>
+        </div>
+        <div className="flex justify-center mt-8">
+          {isLoggedIn ? (
+            <Link href="/chat">
+              <button className="bg-blue-600 px-8 py-3 rounded-lg text-white text-xl hover:bg-white hover:text-black transition duration-300">
+                Let’s Chat
+              </button>
             </Link>
+          ) : (
+            <Link href="/signup">
+              <button className="bg-blue-600 px-8 py-3 rounded-lg text-white text-xl hover:bg-white hover:text-black transition duration-300">
+                Get Started
+              </button>
+            </Link>
+          )}
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section
+        id="about"
+        className="min-h-screen flex flex-col justify-center items-center bg-gray-900 text-center text-white"
+      >
+        <h2 className="text-4xl font-bold">About HeadlineAI</h2>
+        <p className="mt-4 text-xl max-w-2xl mx-auto">
+          HeadlineAI is a cutting-edge AI-powered news platform that helps users stay informed with the latest news.
+          Powered by advanced AI, our system curates and delivers personalized news updates based on your interests.
+        </p>
+      </section>
+
+      {/* Features Section */}
+      <section
+        id="features"
+        className="min-h-screen flex flex-col justify-center items-center bg-black text-center text-white"
+      >
+        <h2 className="text-4xl font-bold">Features</h2>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-2xl font-semibold">AI News Curation</h3>
+            <p className="mt-4">
+              Our AI-driven algorithm selects the most relevant news articles based on your preferences and reading
+              history.
+            </p>
           </div>
-        </nav>
-        <div className='mt-16'>
-          <div className='flex justify-center'>
-            <p className='text-white text-xl'>HeadlineAI :<span className='text-blue-600'> AI-Powered</span> News Application</p>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-2xl font-semibold">Chat-Based Interface</h3>
+            <p className="mt-4">
+              Communicate with an AI agent to get news updates, ask questions, and have real-time conversations about
+              current events.
+            </p>
           </div>
-          <div className='flex justify-center mt-11'>
-            <div className='flex flex-col justify-center items-center'>
-              <p className='text-7xl text-white'>Examin The</p>
-              <p className='text-7xl text-white'>Potential of HeadlineAI</p>
-              <p className='text-7xl text-blue-600'>Chating</p>
-            </div>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-2xl font-semibold">Personalized Alerts</h3>
+            <p className="mt-4">
+              Get real-time notifications about breaking news and topics you care about, directly to your device.
+            </p>
           </div>
         </div>
-        <div className='flex justify-center mt-10'>
-          <p className='text-white text-xl text-center'>HeadlineAI is an<span className='text-blue-600'> AI-powered</span> news<br />application with a conversational user interface<span className='text-blue-600'> (CUI)</span>, designed to<br />help users query<span className='text-blue-600'> News</span> efficiently</p>
-        </div>
-        <div className='flex justify-center mt-10'>
-          <Link href="/signup">
-          <button className='bg-blue-600 border border-blue-600 px-10 py-3 rounded-lg text-white text-xl hover:border-white hover:text-black hover:bg-white'>Get Started</button>
-          </Link>
-        </div>
-        <div className='mt-20'>
-          <h1 className='text-7xl text-blue-600 flex justify-center'>About</h1>
-          <div className='mt-10'>
-            <p className='text-2xl text-white text-center'>Headline AI is a revolutionary chatbot app that leverages a conversational user interface<br />(CUI) to bring you the latest news from aroundthe globe.
-              Designed for intuitive, interactive<br />experiences, Headline AI allows users to communicate with the bot naturally, just like<br />chatting with a person.
-              Ask for the latest headlines, sports updates, or business news,<br />and get real-time information, fetched directly<br />from trusted news sources.With its simple, text-based<br />conversational interface, Headline AI makes staying updated<br />fast and easy. Whether you're on your desktop, mobile,<br />or tablet,
-              just type in your query<br />and let the bot handle the rest.<br />Stay informed in a way that feels personal and<br />effortless.</p>
-          </div>
-        </div>
-      </div>
+      </section>
+
+      {/* Blog Section */}
+      <section
+        id="blog"
+        className="min-h-screen flex flex-col justify-center items-center bg-gray-900 text-center text-white"
+      >
+        <h2 className="text-4xl font-bold">Our Blog</h2>
+        <p className="mt-4 text-xl max-w-2xl mx-auto">
+          Stay up-to-date with the latest insights and articles from industry experts. Learn more about AI trends,
+          journalism, and the future of news.
+        </p>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-black py-6 text-center text-white">
+        <p>© 2024 HeadlineAI. All rights reserved.</p>
+      </footer>
     </main>
-  )
+  );
 }
 
-export default page
+export default LandingPage;

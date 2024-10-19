@@ -2,21 +2,38 @@
 // src/app/signup/page.tsx
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+// Import token utilities
+import { isTokenExpired } from '@/utils/tokenUtils';
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false); // Loading state
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    const email = localStorage.getItem('email');
+    const accessToken = localStorage.getItem('access_token');
+
+    if (email && accessToken && !isTokenExpired(accessToken)) {
+      // If the user is logged in, redirect to the chat page
+      router.push('/chat');
+    }
+  }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); // Set loading to true when signup starts
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/signup", {
+      const response = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/auth/signup", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,7 +42,12 @@ export default function SignupPage() {
       });
 
       if (response.ok) {
-        window.location.href = '/login'; // Redirect to login after signup
+        // Set success message
+        setSuccessMessage('Signup successful! Redirecting to login...');
+        setTimeout(() => {
+          setSuccessMessage(null); // Hide the message after 3 seconds
+          window.location.href = '/login'; // Redirect after signup success
+        }, 3000);
       } else {
         const data = await response.json();
         setError(data.detail);
@@ -124,6 +146,14 @@ export default function SignupPage() {
               </button>
             </div>
           </form>
+
+          {/* Success message popup */}
+          {successMessage && (
+            <div className="mt-4 p-2 bg-green-200 text-green-800 rounded text-center">
+              {successMessage}
+            </div>
+          )}
+
           <div className="text-center mt-6">
             <div className="text-sm text-gray-600">
               Already have an account?{' '}

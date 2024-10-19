@@ -1,42 +1,72 @@
 "use client";
-// src/app/login/page.tsx
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Import the Next.js router
+
+// Utility to check token expiration (can be stored in a utility file)
+function isTokenExpired(token: string) {
+  const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+  const expiryTime = tokenPayload.exp * 1000; // Convert to milliseconds
+  return Date.now() > expiryTime;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success popup
+  const router = useRouter(); // Use Next.js router to redirect
+
+  // Check if the user is already logged in by checking email and access token
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('email');
+    const accessToken = localStorage.getItem('access_token');
+
+    if (storedEmail && accessToken && !isTokenExpired(accessToken)) {
+      // User is logged in, redirect to the chat page
+      router.push('/chat');
+    }
+  }, [router]); // Run this on component mount
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when login starts
+    setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/auth/login', {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      const response = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/auth/login", {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({ email, password }),
+        body: formData.toString(),
       });
 
       if (response.ok) {
         const data = await response.json();
-        // Store JWT in localStorage or cookies
-        localStorage.setItem('token', data.access_token);
-        // Redirect to protected route or home page
-        window.location.href = '/protected-route'; // Change this to the desired route
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('username', 'Me'); // Set the actual username
+        localStorage.setItem('email', email); // Save the email
+
+        // Set success message
+        setSuccessMessage('Login successful! Redirecting...');
+        setTimeout(() => {
+          setSuccessMessage(null); // Hide the message after 3 seconds
+          window.location.href = '/chat'; // Redirect after success
+        }, 2000);
       } else {
         const data = await response.json();
         setError(data.detail);
       }
     } catch (error) {
-      setError('An unexpected error occurred.');
+      setError("An unexpected error occurred.");
     } finally {
-      setLoading(false); // Set loading to false after the request is complete
+      setLoading(false);
     }
   };
 
@@ -50,7 +80,7 @@ export default function LoginPage() {
       <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Sign in</h2>
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">Sign in to your account</h2>
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
@@ -75,7 +105,7 @@ export default function LoginPage() {
                   type="password"
                   required
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-black focus:border-black focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-black focus:border-black focus:z-10 sm:text-sm"
                   placeholder="Password"
                 />
               </div>
@@ -83,7 +113,7 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading} // Disable the button while loading
+                disabled={loading}
                 className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
                   loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-black'
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black`}
@@ -115,12 +145,19 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-          {/* Link to Signup Page */}
+
+          {/* Success message popup */}
+          {successMessage && (
+            <div className="mt-4 p-2 bg-green-200 text-green-800 rounded text-center">
+              {successMessage}
+            </div>
+          )}
+
           <div className="text-center mt-6">
             <div className="text-sm text-gray-600">
               Don't have an account?{' '}
               <Link href="/signup">
-                <p className="font-medium text-xl text-black hover:text-gray-700">Create an account</p>
+                <p className="font-medium text-xl text-black hover:text-gray-700">Sign up</p>
               </Link>
             </div>
           </div>

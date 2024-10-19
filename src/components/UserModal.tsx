@@ -1,5 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface UserModalProps {
   isOpen: boolean;
@@ -11,6 +12,18 @@ interface UserModalProps {
 }
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user }) => {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // Clear access token and email from localStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('email');
+    localStorage.removeItem('username'); // Optional, if you're storing the username
+
+    // Redirect to login page after logout
+    router.push('/login');
+  };
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -52,13 +65,20 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user }) => {
                     Email: <strong>{user.email}</strong>
                   </p>
                 </div>
-                <div className="mt-6">
+                <div className="mt-6 flex justify-between">
                   <button
                     type="button"
                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
                     onClick={closeModal}
                   >
                     Close
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
+                    onClick={handleLogout}
+                  >
+                    Logout
                   </button>
                 </div>
               </Dialog.Panel>
