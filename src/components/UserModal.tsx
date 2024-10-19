@@ -2,13 +2,15 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface User {
+  name: string;
+  email: string;
+}
+
 interface UserModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  user: {
-    name: string;
-    email: string;
-  };
+  user: User | null; // Allow user to be null
 }
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user }) => {
@@ -59,10 +61,10 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user }) => {
                 </Dialog.Title>
                 <div className="mt-4">
                   <p className="text-sm text-gray-700">
-                    Name: <strong>{user.name}</strong>
+                    Name: <strong>{user?.name}</strong> {/* Optional chaining */}
                   </p>
                   <p className="text-sm text-gray-700">
-                    Email: <strong>{user.email}</strong>
+                    Email: <strong>{user?.email}</strong> {/* Optional chaining */}
                   </p>
                 </div>
                 <div className="mt-6 flex justify-between">

@@ -8,39 +8,42 @@ interface User {
 
 const UserIcon: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null); // Set initial user state to null
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // Loading state
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // Fetch user data from localStorage on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Optional: Validate token if needed
+    const token = localStorage.getItem('token'); // Ensure this key is correct
     if (token) {
       // Simulating fetching user information
       const userData: User = {
         name: 'Me', // Fallback to hardcoded name
-        email: localStorage.getItem('email') || "Please Login To Continoun", // Fallback to hardcoded email
+        email: localStorage.getItem('email') || "Please Login To Continue", // Fallback to hardcoded email
       };
       setUser(userData);
     }
+    setLoading(false); // Update loading state
   }, []);
 
+  if (loading) {
+    return <div className="spinner">Loading...</div>; // Add a spinner or loading indicator
+  }
+
   if (!user) {
-    return <div>Loading...</div>; // Show a loading state or fallback UI while fetching user data
+    return <div>Please log in to continue.</div>; // Show a message if user data is not available
   }
 
   return (
     <div>
-      {/* User Icon */}
       <div className="cursor-pointer flex items-center space-x-2" onClick={openModal}>
         <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-          {user.name[0]} {/* Display the first letter of the user's name */}
+          {user.name[0]}
         </div>
         <span className="hidden sm:block">{user.name}</span>
       </div>
 
-      {/* User Info Modal */}
       <UserModal isOpen={isModalOpen} closeModal={closeModal} user={user} />
     </div>
   );
