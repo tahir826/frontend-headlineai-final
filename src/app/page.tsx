@@ -100,36 +100,43 @@ function LandingPage() {
         </div>
       </nav>
 
-      {/* Home Section */}
-      <section
-        id="home"
-        className="min-h-screen flex flex-col justify-center items-center bg-black text-center"
-      >
-        <p className="text-white text-xl md:text-4xl lg:text-3xl font-bold">
-          <span className="text-8xl bg-gradient-to-r from-blue-500 to-white bg-clip-text text-transparent">HeadlineAI<span><br/> </span> </span><br /> <span className="text-blue-600">AI-Powered</span> News Application
-        </p>
-        <p>
+{/* Home Section */}
+<section
+  id="home"
+  className="min-h-screen flex flex-col justify-center items-center bg-black text-center px-4"
+>
+  <div className="flex flex-col items-center">
+    <p className="text-5xl sm:text-6xl md:text-8xl bg-gradient-to-r from-blue-500 to-purple-700 bg-clip-text text-transparent font-bold leading-tight">
+      HeadlineAI
+    </p>
+    <p className="text-white text-xl sm:text-2xl md:text-3xl mt-2">
+      <span className="text-blue-600">AI-Powered</span> News Application
+    </p>
+  </div>
 
-        </p>
-        <div className="mt-6">
-          <p className="text-white text-xl md:text-5xl">Explore The<br />Potential of <span className="text-blue-600">Agentic AI</span><br /> in news</p> 
-        </div>
-        <div className="flex justify-center mt-8">
-          {isLoggedIn ? (
-            <Link href="/chat">
-              <button className="bg-blue-600 px-8 py-3 rounded-lg text-white text-xl hover:bg-white hover:text-black transition duration-300">
-                Let’s Chat
-              </button>
-            </Link>
-          ) : (
-            <Link href="/signup">
-              <button className="bg-blue-600 px-8 py-3 rounded-lg text-white text-xl hover:bg-white hover:text-black transition duration-300">
-                Get Started
-              </button>
-            </Link>
-          )}
-        </div>
-      </section>
+  <div className="mt-6">
+    <p className="text-white text-lg sm:text-2xl md:text-5xl leading-relaxed mt-10">
+      Explore The<br/>Potential of <span className="text-blue-600">Agentic AI</span><br/>in news
+    </p>
+  </div>
+
+  <div className="flex justify-center mt-20">
+    {isLoggedIn ? (
+      <Link href="/chat">
+        <button className="bg-blue-600 px-6 sm:px-8 py-3 rounded-lg text-white text-lg sm:text-xl hover:bg-white hover:text-black transition duration-300">
+          Let’s Chat
+        </button>
+      </Link>
+    ) : (
+      <Link href="/signup">
+        <button className="bg-blue-600 px-6 sm:px-8 py-3 rounded-lg text-white text-lg sm:text-xl hover:bg-white hover:text-black transition duration-300">
+          Get Started
+        </button>
+      </Link>
+    )}
+  </div>
+</section>
+
 
       {/* About Section */}
       <section
