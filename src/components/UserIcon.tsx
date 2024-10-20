@@ -20,7 +20,7 @@ const UserIcon: React.FC = () => {
       // Simulating fetching user information
       const userData: User = {
         name: 'Me', // Fallback to hardcoded name
-        email: localStorage.getItem('email') || "Please Login To Continue", // Fallback to hardcoded email
+        email: localStorage.getItem('email') || "Loading", // Fallback to hardcoded email
       };
       setUser(userData);
     }

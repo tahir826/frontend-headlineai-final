@@ -105,11 +105,14 @@ function LandingPage() {
         id="home"
         className="min-h-screen flex flex-col justify-center items-center bg-black text-center"
       >
-        <p className="text-white text-2xl md:text-4xl lg:text-5xl font-bold">
-          HeadlineAI : <span className="text-blue-600">AI-Powered</span> News Application
+        <p className="text-white text-xl md:text-4xl lg:text-3xl font-bold">
+          <span className="text-8xl bg-gradient-to-r from-blue-500 to-white bg-clip-text text-transparent">HeadlineAI<span><br/> </span> </span><br /> <span className="text-blue-600">AI-Powered</span> News Application
+        </p>
+        <p>
+
         </p>
         <div className="mt-6">
-          <p className="text-white text-xl md:text-3xl">Explore The Potential of AI in News</p>
+          <p className="text-white text-xl md:text-5xl">Explore The<br />Potential of <span className="text-blue-600">Agentic AI</span><br /> in news</p> 
         </div>
         <div className="flex justify-center mt-8">
           {isLoggedIn ? (
