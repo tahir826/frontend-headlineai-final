@@ -127,7 +127,7 @@ const ChatInterface = () => {
                     />
                     <button
                         onClick={handleSend}
-                        className="ml-2 py-2 px-4 bg-gray-700 hover:bg-gray-900 hover:text-gray-500 text-white rounded-md"
+                        className="ml-2 p-2 bg-gray-700 hover:bg-gray-900 hover:text-gray-500 text-white rounded-md"
                         disabled={loading}
                     >
                         {loading ? 'Sending...' : 'Send'}
