@@ -69,9 +69,9 @@ const ChatInterface = () => {
     // Function to determine dynamic background based on message length
     const getBackgroundClass = (message: string) => {
         const length = message.length;
-        if (length < 50) return 'bg-green-200';  // Short message
-        if (length < 100) return 'bg-blue-200';  // Medium message
-        return 'bg-yellow-200';  // Long message
+        if (length < 50) return 'bg-gray-600';  // Short message
+        if (length < 100) return 'bg-gray-600';  // Medium message
+        return 'bg-gray-600';  // Long message
     };
 
     // Auto-scroll to the bottom when new message is added
@@ -82,7 +82,7 @@ const ChatInterface = () => {
     }, [messages]);
 
     return (
-        <div className="flex flex-col h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500">
+        <div className="flex flex-col h-screen bg-gray-900">
 <SideLayout />
             {/* Chat history */}
             <div
@@ -93,19 +93,19 @@ const ChatInterface = () => {
                     {messages.map((msg, index) => (
                         <div key={index} className="mb-12 flex flex-col items-center">  {/* Increased margin between messages */}
                             {/* User message */}
-                            <div className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-white text-right mb-4 text-gray-800 inline-block break-words`}>
+                            <div className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-600 text-right mb-4 text-gray-200 inline-block break-words`}>
                                 <strong>You:</strong> {msg.user}
                             </div>
                             
                             {/* Bot message */}
                             {msg.bot ? (
                                 <div
-                                    className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md ${getBackgroundClass(msg.bot)} text-left break-words`}
+                                    className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md text-gray-300 ${getBackgroundClass(msg.bot)} text-left break-words`}
                                     dangerouslySetInnerHTML={{ __html: msg.bot }}
                                 />
                             ) : loading && index === messages.length - 1 && (  // Display loading effect for the last bot message
-                                <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-200 text-left break-words">
-                                    <span className="animate-pulse">AI is generating...</span>
+                                <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-700 text-left break-words">
+                                    <span className="animate-pulse text-white">AI is generating...</span>
                                 </div>
                             )}
                         </div>
@@ -115,31 +115,25 @@ const ChatInterface = () => {
 
             {/* Input section */}
             <div className="w-full fixed bottom-0 left-0 p-4 flex justify-center">
-                <div className="flex items-center w-full max-w-2xl bg-white p-4 rounded-full shadow-lg">
+                <div className="flex items-center w-full max-w-2xl  p-4 rounded-lg shadow-lg">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        className="flex-grow p-2 border border-gray-300 rounded-full"
+                        placeholder="Enter Your Query..."
+                        className="flex-grow px-4 py-2 bg-gray-700 rounded-lg text-white"
                         disabled={!isLoggedIn}
                     />
                     <button
                         onClick={handleSend}
-                        className="ml-2 p-2 bg-blue-500 text-white rounded-full"
+                        className="ml-2 py-2 px-4 bg-gray-700 hover:bg-gray-900 hover:text-gray-500 text-white rounded-md"
                         disabled={loading}
                     >
                         {loading ? 'Sending...' : 'Send'}
                     </button>
                 </div>
             </div>
-
-            {!isLoggedIn && (
-                <div className="flex justify-center items-center absolute top-0 left-0 w-full h-full bg-gray-300 bg-opacity-75">
-                    <h2>Please log in to chat</h2>
-                </div>
-            )}
         </div>
     );
 };

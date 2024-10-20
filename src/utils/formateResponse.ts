@@ -11,7 +11,7 @@ const formatResponse = (response: string) => {
         .replace(/- (.+)/g, '<li class="list-disc ml-6">$1</li>') // Format bullet points
 
         // Format links (e.g., [text](url))
-        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-blue-500 underline">$1</a>') // Format links
+        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="text-blue-700 underline">$1</a>') // Format links
 
         // Convert new lines (\n) into line breaks (<br/>)
         .replace(/\n/g, '<br/>'); // Line breaks for new lines
