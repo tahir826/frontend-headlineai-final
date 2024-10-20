@@ -100,7 +100,7 @@ const ChatInterface = () => {
                             {/* Bot message */}
                             {msg.bot ? (
                                 <div
-                                    className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md text-gray-300 ${getBackgroundClass(msg.bot)} text-left break-words`}
+                                    className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md text-gray-200 ${getBackgroundClass(msg.bot)} text-left break-words`}
                                     dangerouslySetInnerHTML={{ __html: msg.bot }}
                                 />
                             ) : loading && index === messages.length - 1 && (  // Display loading effect for the last bot message
