@@ -116,7 +116,7 @@ function LandingPage() {
 
   <div className="mt-6">
     <p className="text-white text-lg sm:text-6xl md:text-7xl leading-relaxed mt-10">
-      Explore The<br/>Potential of <span className="text-blue-600">Agentic AI</span><br/>in news
+      Explore The<br/>Potential of <span className="text-blue-600">Agentic AI</span><br/>in News
     </p>
   </div>
 
