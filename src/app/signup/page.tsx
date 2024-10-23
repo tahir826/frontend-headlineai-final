@@ -47,7 +47,7 @@ export default function SignupPage() {
         setTimeout(() => {
           setSuccessMessage(null); // Hide the message after 3 seconds
           window.location.href = '/login'; // Redirect after signup success
-        }, 3000);
+        }, 2000);
       } else {
         const data = await response.json();
         setError(data.detail);
