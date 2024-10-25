@@ -81,7 +81,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user, anchorR
               <div className="mt-6 flex justify-center">
                 <button
                   type="button"
-                  className="rounded-md bg-black px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 transition duration-200"
+                  className="rounded-md bg-black px-6 py-3 text-xl font-medium text-white hover:bg-gray-800 transition duration-200"
                   onClick={handleLogout}
                 >
                   Logout
