@@ -59,7 +59,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user, anchorR
             leaveTo="translate-y-4 opacity-0"
           >
             <Dialog.Panel ref={modalRef} className="w-full max-w-md transform overflow-hidden rounded-lg bg-gray-700 p-6 shadow-lg transition-all relative">
-              {/* Cross icon in the top-right corner */}
               <button onClick={closeModal} className="absolute top-4 right-4 text-white hover:text-gray-400">
                 <AiOutlineClose className="w-5 h-5" />
               </button>
@@ -70,20 +69,19 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user, anchorR
               <div className="mt-4 space-y-4">
                 <div className="p-4 bg-white rounded-lg shadow-md">
                   <p className="text-xl font-bold text-gray-800">
-                    <strong>Name:</strong> <span className='text-gray-600'>{user?.name}</span> 
+                    <strong>Name:</strong> <span className="text-gray-600">{user?.name}</span> 
                   </p>
                 </div>
                 <div className="p-4 bg-white rounded-lg shadow-md">
-                  <p className="text-xl font-bold text-gray-800">
-                    <strong>Email:</strong> <span className='text-gray-600'>{user?.email}</span>
+                  <p className="text-xl font-bold text-gray-800 break-words">
+                    <strong>Email:</strong> <span className="text-gray-600">{user?.email}</span>
                   </p>
                 </div>
               </div>
-              {/* Logout button centered and below email field */}
               <div className="mt-6 flex justify-center">
                 <button
                   type="button"
-                  className="rounded-md bg-black px-6 py-3 text-xl font-medium text-white hover:bg-gray-800 transition duration-200"
+                  className="rounded-md bg-black px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 transition duration-200"
                   onClick={handleLogout}
                 >
                   Logout
