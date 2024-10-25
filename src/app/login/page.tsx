@@ -2,12 +2,11 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Import the Next.js router
+import { useRouter } from 'next/navigation';
 
-// Utility to check token expiration (can be stored in a utility file)
 function isTokenExpired(token: string) {
   const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-  const expiryTime = tokenPayload.exp * 1000; // Convert to milliseconds
+  const expiryTime = tokenPayload.exp * 1000; 
   return Date.now() > expiryTime;
 }
 
@@ -16,19 +15,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success popup
-  const router = useRouter(); // Use Next.js router to redirect
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Check if the user is already logged in by checking email and access token
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
     const accessToken = localStorage.getItem('access_token');
 
     if (storedEmail && accessToken && !isTokenExpired(accessToken)) {
-      // User is logged in, redirect to the chat page
       router.push('/chat');
     }
-  }, [router]); // Run this on component mount
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,15 +47,29 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('username', 'Me'); // Set the actual username
-        localStorage.setItem('email', email); // Save the email
+        localStorage.setItem('email', email);
 
-        // Set success message
-        setSuccessMessage('Login successful! Redirecting...');
-        setTimeout(() => {
-          setSuccessMessage(null); // Hide the message after 3 seconds
-          window.location.href = '/chat'; // Redirect after success
-        }, 2000);
+        // Fetch user details after successful login
+        const userResponse = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/user/get_current_user_details/", {
+          headers: {
+            'Authorization': `Bearer ${data.access_token}`,
+          },
+        });
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          localStorage.setItem('username', userData.username);
+          localStorage.setItem('user_id', userData.id);
+          localStorage.setItem('email', userData.email);
+
+          setSuccessMessage('Login successful! Redirecting...');
+          setTimeout(() => {
+            setSuccessMessage(null);
+            window.location.href = '/chat';
+          }, 2000);
+        } else {
+          setError("Failed to fetch user details.");
+        }
       } else {
         const data = await response.json();
         setError(data.detail);
@@ -146,7 +157,6 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Success message popup */}
           {successMessage && (
             <div className="mt-4 p-2 bg-green-200 text-green-800 rounded text-center">
               {successMessage}
