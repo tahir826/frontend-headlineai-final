@@ -1,9 +1,134 @@
 "use client";
-import React, { useState } from 'react';
-import History from './History';
+import React, { useEffect, useState } from 'react';
 
-const Sidebar = () => {
+interface Conversation {
+    conversation_id: string;
+    is_active: boolean;
+    created_at: string;
+    user_id: number;
+}
+
+const Sidebar: React.FC<{ onResume: (conversation: Conversation) => void }> = ({ onResume }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchConversations();
+    }, []);
+
+    const fetchConversations = async () => {
+        const userId = localStorage.getItem('user_id');
+        const accessToken = localStorage.getItem('access_token');
+
+        if (!userId || !accessToken) {
+            setError('User ID or access token is missing');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/get_all_user_conversations/${userId}/`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch conversations');
+            }
+
+            const data: Conversation[] = await response.json();
+            setConversations(data);
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const startNewConversation = async () => {
+        const accessToken = localStorage.getItem('access_token');
+
+        if (!accessToken) {
+            setError('Access token is missing');
+            return;
+        }
+
+        try {
+            const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/start_new_conversation/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to start a new conversation');
+            }
+
+            fetchConversations();
+        } catch (err) {
+            setError((err as Error).message);
+        }
+    };
+
+    const resumeConversation = async (conversationId: string) => {
+        const accessToken = localStorage.getItem('access_token');
+
+        if (!accessToken) {
+            setError('Access token is missing');
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/resume_old_conversation/${conversationId}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to resume conversation');
+            }
+
+            const data = await response.json();
+            onResume(data); // Pass the resumed conversation to the parent component
+        } catch (err) {
+            setError((err as Error).message);
+        }
+    };
+
+    const deleteConversation = async (conversationId: string) => {
+        const accessToken = localStorage.getItem('access_token');
+
+        if (!accessToken) {
+            setError('Access token is missing');
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/delete_conversation/${conversationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete conversation');
+            }
+
+            fetchConversations(); // Refresh the conversation list after deletion
+        } catch (err) {
+            setError((err as Error).message);
+        }
+    };
 
     return (
         <div className="flex">
@@ -15,7 +140,48 @@ const Sidebar = () => {
                             Chat History
                         </a>
                     </div>
-                    <History />
+
+                    <button
+                        onClick={startNewConversation}
+                        className="mt-4 mb-2 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all"
+                    >
+                        Start New Conversation
+                    </button>
+
+                    <div className="mt-4 w-full px-4">
+                        {loading ? (
+                            <p>Loading...</p>
+                        ) : error ? (
+                            <p className="text-red-500">Error: {error}</p>
+                        ) : (
+                            conversations.map(convo => (
+                                <div key={convo.conversation_id} className="bg-gray-700 p-3 mb-3 rounded shadow-md hover:bg-gray-600">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm text-gray-300">{new Date(convo.created_at).toLocaleDateString()}</span>
+                                        {convo.is_active && (
+                                            <span className="text-green-500">
+                                                &#10004; {/* Check mark */}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-lg text-white font-semibold mb-1">Conversation ID:</p>
+                                    <p className="text-sm text-gray-400 truncate">{convo.conversation_id}</p>
+                                    <button
+                                        onClick={() => resumeConversation(convo.conversation_id)}
+                                        className="mt-1 p-1 bg-green-600 hover:bg-green-700 text-white rounded"
+                                    >
+                                        Resume
+                                    </button>
+                                    <button
+                                        onClick={() => deleteConversation(convo.conversation_id)}
+                                        className="mt-1 ml-2 p-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
             <div className={`flex-1 p-4 ${isOpen ? 'ml-64' : 'ml-0'}`}>
