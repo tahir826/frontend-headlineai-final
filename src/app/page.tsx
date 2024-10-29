@@ -168,7 +168,7 @@ function LandingPage() {
       {/* Blog Section */}
       <section id="blog" className="min-h-screen flex flex-col justify-center items-center bg-gray-900 text-center text-white">
         <h2 className="text-4xl font-bold">Our Blog</h2>
-        <p className="mt-4 text-xl max-w-2xl mx-auto">
+        <p className="mt-4 text-xl max-w-2xl mx-auto mr-10 ml-10">
           Stay up-to-date with the latest insights and articles from industry experts. Learn more about AI trends, journalism, and the future of news.
         </p>
       </section>
