@@ -8,7 +8,7 @@ interface Conversation {
     user_id: number;
 }
 
-const Sidebar: React.FC<{ onResume: (conversation: Conversation) => void }> = ({ onResume }) => {
+const SidePanel: React.FC<{ onResume: (conversation: Conversation) => void }> = ({ onResume }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -206,4 +206,4 @@ const Sidebar: React.FC<{ onResume: (conversation: Conversation) => void }> = ({
     );
 };
 
-export default Sidebar;
+export default SidePanel;

@@ -83,7 +83,7 @@ const ChatInterface = () => {
 
     return (
         <div className="flex flex-col h-screen bg-gray-900">
-<SideLayout />
+<SideLayout onResume={()=>"string"}/>
             {/* Chat history */}
             <div
                 ref={chatContainerRef}  // Attach the ref to enable scrolling
