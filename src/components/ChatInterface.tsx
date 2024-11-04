@@ -1,17 +1,19 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
-import  formatResponse  from '@/utils/formateResponse';
-import SideLayout from "@/components/SidePanel"
- // Import the utility
+import formatResponse from '@/utils/formateResponse';
+import { FaChevronRight, FaChevronLeft, FaPlus, FaSpinner } from 'react-icons/fa';
+import { FaPaperPlane } from 'react-icons/fa';
 
 const ChatInterface = () => {
     const [input, setInput] = useState('');
-    const [messages, setMessages] = useState<{ user: string, bot?: string }[]>([]);  // bot can be optional until the response comes
+    const [messages, setMessages] = useState<{ user: string, bot?: string }[]>([]);
     const [loading, setLoading] = useState(false);
     const [access_token, setToken] = useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    // Ref to handle auto-scrolling
+    const [conversations, setConversations] = useState<any[]>([]);
+    const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -19,16 +21,121 @@ const ChatInterface = () => {
         if (storedToken) {
             setToken(storedToken);
             setIsLoggedIn(true);
+            fetchUserConversations();
         }
     }, []);
 
+    useEffect(() => {
+        if (access_token) {
+            fetchUserConversations();
+        }
+    }, [access_token]);
+
+    const fetchUserConversations = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/get_all_user_conversations/', {
+                headers: { 'Authorization': `Bearer ${access_token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch conversations');
+            const data = await response.json();
+            setConversations(data);
+        } catch (error) {
+            console.error('Error fetching conversations:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const startNewConversation = async () => {
+        setLoading(true);
+        setMessages([]);
+        try {
+            const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/start_new_conversation/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${access_token}`
+                }
+            });
+    
+            if (!response.ok) throw new Error('Failed to start a new conversation');
+            
+            const newConversation = await response.json();
+            const { conversation_id, created_at } = newConversation;
+    
+            // Add the new conversation to the state
+            setConversations(prevConversations => [{ conversation_id, created_at }, ...prevConversations]);
+    
+            // Set the new conversation as the active one
+            setActiveConversationId(conversation_id);
+    
+            // Automatically fetch messages if any (usually empty in a new conversation)
+            setMessages([]);
+    
+        } catch (error) {
+            console.error('Error starting new conversation:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteConversation = async (conversationId: string) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/delete_conversation/${conversationId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${access_token}` }
+            });
+            if (!response.ok) throw new Error('Failed to delete conversation');
+
+            // Remove the deleted conversation from the state
+            setConversations(prevConversations => 
+                prevConversations.filter(conv => conv.conversation_id !== conversationId)
+            );
+
+            // Reset active conversation if it was deleted
+            if (activeConversationId === conversationId) {
+                setActiveConversationId(null);
+                setMessages([]);
+            }
+            
+        } catch (error) {
+            console.error('Error deleting conversation:', error);
+        } finally {
+            setLoading(false);
+            fetchUserConversations();
+        }
+    };
+
+    const resumeConversation = async (conversationId: string) => {
+        setLoading(true);
+        setMessages([]);
+        setActiveConversationId(conversationId); // Set the active conversation
+        try {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/resume_old_conversation/${conversationId}`, {
+                headers: { 'Authorization': `Bearer ${access_token}` }
+            });
+            if (!response.ok) throw new Error('Failed to resume conversation');
+
+            const data = await response.json();
+            setMessages(data.messages.map((msg: any) => ({
+                user: msg.role === 'human' ? msg.content : '',
+                bot: msg.role === 'ai' ? formatResponse(msg.content) : undefined
+            })));
+        } catch (error) {
+            console.error('Error resuming conversation:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSend = async () => {
         if (input.trim() && access_token) {
-            const userMessage = input;  // Capture the current input
-            setMessages(prev => [...prev, { user: userMessage }]);  // Display the user's message immediately
-            setInput('');  // Clear the input field
-
-            setLoading(true);
+            const userMessage = input;
+            setMessages(prev => [...prev, { user: userMessage }]);
+            setInput('');
+            setIsWaitingForResponse(true);
             try {
                 const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/ai/call_agent', {
                     method: 'POST',
@@ -36,26 +143,24 @@ const ChatInterface = () => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${access_token}`
                     },
-                    body: JSON.stringify({ query: userMessage })  // Use captured input (userMessage)
+                    body: JSON.stringify({ query: userMessage })
                 });
 
                 if (!response.ok) throw new Error('Failed to fetch data from backend');
 
                 const data = await response.json();
                 const botReply = data.messages[data.messages.length - 1].content;
-
-                // Format the bot's response before adding it
                 const formattedBotReply = formatResponse(botReply);
 
                 setMessages(prev => {
                     const updatedMessages = [...prev];
-                    updatedMessages[updatedMessages.length - 1] = { user: userMessage, bot: formattedBotReply };  // Update the last message with bot's response
+                    updatedMessages[updatedMessages.length - 1] = { user: userMessage, bot: formattedBotReply };
                     return updatedMessages;
                 });
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
-                setLoading(false);
+                setIsWaitingForResponse(false);
             }
         }
     };
@@ -66,15 +171,6 @@ const ChatInterface = () => {
         }
     };
 
-    // Function to determine dynamic background based on message length
-    const getBackgroundClass = (message: string) => {
-        const length = message.length;
-        if (length < 50) return 'bg-gray-600';  // Short message
-        if (length < 100) return 'bg-gray-600';  // Medium message
-        return 'bg-gray-600';  // Long message
-    };
-
-    // Auto-scroll to the bottom when new message is added
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -82,58 +178,107 @@ const ChatInterface = () => {
     }, [messages]);
 
     return (
-        <div className="flex flex-col h-screen bg-gray-900">
-<SideLayout onResume={()=>"string"}/>
-            {/* Chat history */}
-            <div
-                ref={chatContainerRef}  // Attach the ref to enable scrolling
-                className="flex-1 overflow-y-auto p-4 pb-28 flex flex-col items-center justify-start"  // Added bottom padding for visibility
-            >
-                <div className="max-w-2xl w-full">
+        <div className="flex h-screen bg-gray-900">
+            {/* Sidebar */}
+            <div className={`flex-shrink-0 flex flex-col bg-gray-800 transition-transform duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-y-auto`}>
+                <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className={`mt-16 ml-2 absolute top-4 left-${sidebarOpen ? '64' : '4'} p-2 rounded-full bg-blue-600 text-white transition-all duration-300 hover:bg-blue-500 focus:outline-none shadow-lg z-10`}
+                >
+                    {sidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
+                </button>
+
+                {sidebarOpen && (
+                    <div className="p-4 space-y-4">
+                        <button onClick={startNewConversation} className="bg-green-600 ml-8 text-white p-2 rounded-lg flex items-center space-x-2">
+                            {loading ? <FaSpinner className="animate-spin" /> : <FaPlus />}
+                            <span>New Conversation</span>
+                        </button>
+
+                        <h2 className="text-white text-lg mb-4">Conversations</h2>
+                        {loading ? (
+                            <div className="text-center text-white"><FaSpinner className="animate-spin" /></div>
+                        ) : (
+                            <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                                {conversations.map(conversation => (
+                                    <div
+                                        key={conversation.conversation_id}
+                                        className={`flex flex-col p-3 rounded-lg transition duration-200 cursor-pointer ${
+                                            activeConversationId === conversation.conversation_id ? 'bg-gray-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'
+                                        }`}
+                                        onClick={() => resumeConversation(conversation.conversation_id)} // Automatically resume conversation
+                                    >
+                                        <div>
+                                            <span>{new Date(conversation.created_at).toLocaleDateString()}</span>
+                                            <br />
+                                            <span>{new Date(conversation.created_at).toLocaleTimeString()}</span>
+                                        </div>
+                                        {activeConversationId !== conversation.conversation_id && (
+                                            <div className="flex space-x-1 mt-2">
+                                                <button className="text-blue-400 hover:underline">
+                                                    Resume
+                                                </button>
+                                                <button onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent click from resuming conversation
+                                                    deleteConversation(conversation.conversation_id);
+                                                }} className="text-red-400 hover:underline">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Chat interface */}
+            <div className="flex-1 overflow-y-auto p-4 pb-28 flex flex-col items-center justify-start">
+                <div ref={chatContainerRef} className="max-w-2xl w-full">
                     {messages.map((msg, index) => (
-                        <div key={index} className="mb-12 flex flex-col items-center">  {/* Increased margin between messages */}
-                            {/* User message */}
-                            <div className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-600 text-right mb-4 text-gray-200 inline-block break-words`}>
+                        <div key={index} className="mb-12 flex flex-col items-center">
+                            <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-600 text-right mb-4 text-gray-200 inline-block break-words">
                                 <strong>You:</strong> {msg.user}
                             </div>
-                            
-                            {/* Bot message */}
                             {msg.bot ? (
-                                <div
-                                    className={`w-auto max-w-[90%] p-3 rounded-lg shadow-md text-gray-200 ${getBackgroundClass(msg.bot)} text-left break-words`}
-                                    dangerouslySetInnerHTML={{ __html: msg.bot }}
-                                />
-                            ) : loading && index === messages.length - 1 && (  // Display loading effect for the last bot message
-                                <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-700 text-left break-words">
-                                    <span className="animate-pulse text-white">AI is generating...</span>
+                                <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-500 text-left break-words text-gray-200" dangerouslySetInnerHTML={{ __html: msg.bot }} />
+                            ) : isWaitingForResponse ? (
+                                <div className="w-auto max-w-[90%] p-3 rounded-lg shadow-md bg-gray-500 text-left break-words text-gray-200">
+                                    <FaSpinner className="animate-spin inline mr-2" /> Waiting for response...
                                 </div>
-                            )}
+                            ) : null}
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Input section */}
-            <div className="w-full fixed bottom-0 left-0 p-4 flex justify-center">
-                <div className="flex items-center w-full max-w-2xl  p-4 rounded-lg shadow-lg">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Enter Your Query..."
-                        className="flex-grow px-4 py-2 bg-gray-700 rounded-lg text-white"
-                        disabled={!isLoggedIn}
-                    />
-                    <button
-                        onClick={handleSend}
-                        className="ml-2 p-2 bg-gray-700 hover:bg-gray-900 hover:text-gray-500 text-white rounded-md"
-                        disabled={loading}
-                    >
-                        {loading ? 'Sending...' : 'Send'}
-                    </button>
-                </div>
+            {/* Input */}
+            <div className="fixed bottom-4 left-0 right-0 max-w-2xl mx-auto px-4">
+            <div className="flex items-center bg-gray-800 text-white rounded-lg shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+                <input
+                    type="text"
+                    placeholder="Type your message..."
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    disabled={isWaitingForResponse} // Disable input while waiting
+                    className="flex-1 bg-transparent p-3 rounded-l-lg outline-none text-white"
+                />
+                <button
+                    onClick={handleSend}
+                    disabled={isWaitingForResponse} // Disable button while waiting
+                    className={`p-3 rounded-lg mr-1 ${isWaitingForResponse ? 'bg-gray-700 cursor-not-allowed' : ' hover:bg-blue-500'} transition-colors duration-300`}
+                >
+                    {isWaitingForResponse ? (
+                        <FaSpinner className="animate-spin text-white" />
+                    ) : (
+                        <FaPaperPlane className="text-white" />
+                    )}
+                </button>
             </div>
+        </div>
         </div>
     );
 };
