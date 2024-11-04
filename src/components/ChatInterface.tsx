@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import formatResponse from '@/utils/formateResponse';
-import { FaChevronRight, FaChevronLeft, FaPlus, FaSpinner } from 'react-icons/fa';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaChevronRight, FaChevronLeft, FaPlus, FaSpinner, FaTrash, FaPaperPlane } from 'react-icons/fa';
+import { isTokenExpired, refreshAccessToken } from "@/utils/tokenUtils";
+import { useRouter } from 'next/navigation';
 
 const ChatInterface = () => {
     const [input, setInput] = useState('');
@@ -15,13 +16,20 @@ const ChatInterface = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();  // Add router for navigation
 
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
         if (storedToken) {
-            setToken(storedToken);
-            setIsLoggedIn(true);
-            fetchUserConversations();
+            if (isTokenExpired(storedToken)) {
+                router.push('/login');  // Redirect to login if token is expired
+            } else {
+                setToken(storedToken);
+                setIsLoggedIn(true);
+                  // Automatically start a new conversation if token is valid
+            }
+        } else {
+            router.push('/login');  // Redirect if no token found
         }
     }, []);
 
@@ -215,9 +223,7 @@ const ChatInterface = () => {
                                         </div>
                                         {activeConversationId !== conversation.conversation_id && (
                                             <div className="flex space-x-1 mt-2">
-                                                <button className="text-blue-400 hover:underline">
-                                                    Resume
-                                                </button>
+                                                
                                                 <button onClick={(e) => {
                                                     e.stopPropagation(); // Prevent click from resuming conversation
                                                     deleteConversation(conversation.conversation_id);
