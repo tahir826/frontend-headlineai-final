@@ -29,7 +29,7 @@ const SidePanel: React.FC<{ onResume: (conversation: Conversation) => void }> = 
         }
 
         try {
-            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/get_all_user_conversations/${userId}/`, {
+            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/get_all_user_conversations/`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
