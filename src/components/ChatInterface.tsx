@@ -26,7 +26,7 @@ const ChatInterface = () => {
             } else {
                 setToken(storedToken);
                 setIsLoggedIn(true);
-                  // Automatically start a new conversation if token is valid
+                // Automatically start a new conversation if token is valid
             }
         } else {
             router.push('/login');  // Redirect if no token found
@@ -66,21 +66,21 @@ const ChatInterface = () => {
                     'Authorization': `Bearer ${access_token}`
                 }
             });
-    
+
             if (!response.ok) throw new Error('Failed to start a new conversation');
-            
+
             const newConversation = await response.json();
             const { conversation_id, created_at } = newConversation;
-    
+
             // Add the new conversation to the state
             setConversations(prevConversations => [{ conversation_id, created_at }, ...prevConversations]);
-    
+
             // Set the new conversation as the active one
             setActiveConversationId(conversation_id);
-    
+
             // Automatically fetch messages if any (usually empty in a new conversation)
             setMessages([]);
-    
+
         } catch (error) {
             console.error('Error starting new conversation:', error);
         } finally {
@@ -98,7 +98,7 @@ const ChatInterface = () => {
             if (!response.ok) throw new Error('Failed to delete conversation');
 
             // Remove the deleted conversation from the state
-            setConversations(prevConversations => 
+            setConversations(prevConversations =>
                 prevConversations.filter(conv => conv.conversation_id !== conversationId)
             );
 
@@ -107,7 +107,7 @@ const ChatInterface = () => {
                 setActiveConversationId(null);
                 setMessages([]);
             }
-            
+
         } catch (error) {
             console.error('Error deleting conversation:', error);
         } finally {
@@ -212,9 +212,8 @@ const ChatInterface = () => {
                                 {conversations.map(conversation => (
                                     <div
                                         key={conversation.conversation_id}
-                                        className={`flex flex-col p-3 rounded-lg transition duration-200 cursor-pointer ${
-                                            activeConversationId === conversation.conversation_id ? 'bg-gray-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'
-                                        }`}
+                                        className={`flex flex-col p-3 rounded-lg transition duration-200 cursor-pointer ${activeConversationId === conversation.conversation_id ? 'bg-gray-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'
+                                            }`}
                                         onClick={() => resumeConversation(conversation.conversation_id)} // Automatically resume conversation
                                     >
                                         <div>
@@ -223,18 +222,18 @@ const ChatInterface = () => {
                                             <span>{new Date(conversation.created_at).toLocaleTimeString()}</span>
                                         </div>
                                         {activeConversationId !== conversation.conversation_id && (
-    <div className="flex space-x-1 mt-2">
-        <button
-            onClick={(e) => {
-                e.stopPropagation(); // Prevent click from resuming conversation
-                deleteConversation(conversation.conversation_id);
-            }}
-            className="text-red-400 hover:underline"
-        >
-            <FaTrash />
-        </button>
-    </div>
-)}
+                                            <div className="flex space-x-1 mt-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevent click from resuming conversation
+                                                        deleteConversation(conversation.conversation_id);
+                                                    }}
+                                                    className="text-red-400 hover:underline"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -265,29 +264,29 @@ const ChatInterface = () => {
 
             {/* Input */}
             <div className="fixed bottom-4 left-0 right-0 max-w-2xl mx-auto px-4">
-            <div className="flex items-center bg-gray-800 text-white rounded-lg shadow-md focus-within:ring-2 focus-within:ring-blue-500">
-                <input
-                    type="text"
-                    placeholder="Enter Your Query..."
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    disabled={isWaitingForResponse} // Disable input while waiting
-                    className="flex-1 bg-transparent p-3 rounded-l-lg outline-none text-white"
-                />
-                <button
-                    onClick={handleSend}
-                    disabled={isWaitingForResponse} // Disable button while waiting
-                    className={`p-3 rounded-lg mr-1 ${isWaitingForResponse ? 'bg-gray-700 cursor-not-allowed' : ' hover:bg-blue-500'} transition-colors duration-300`}
-                >
-                    {isWaitingForResponse ? (
-                        <FaSpinner className="animate-spin text-white" />
-                    ) : (
-                        <FaPaperPlane className="text-white" />
-                    )}
-                </button>
+                <div className="flex items-center bg-gray-800 text-white rounded-lg shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+                    <input
+                        type="text"
+                        placeholder="Enter Your Query..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        disabled={isWaitingForResponse} // Disable input while waiting
+                        className="flex-1 bg-transparent p-3 rounded-l-lg outline-none text-white"
+                    />
+                    <button
+                        onClick={handleSend}
+                        disabled={isWaitingForResponse} // Disable button while waiting
+                        className={`p-3 rounded-lg mr-1 ${isWaitingForResponse ? 'bg-gray-700 cursor-not-allowed' : ' hover:bg-blue-500'} transition-colors duration-300`}
+                    >
+                        {isWaitingForResponse ? (
+                            <FaSpinner className="animate-spin text-white" />
+                        ) : (
+                            <FaPaperPlane className="text-white" />
+                        )}
+                    </button>
+                </div>
             </div>
-        </div>
         </div>
     );
 };
