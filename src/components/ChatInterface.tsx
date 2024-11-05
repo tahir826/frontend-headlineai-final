@@ -13,7 +13,7 @@ const ChatInterface = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [conversations, setConversations] = useState<any[]>([]);
     const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();  // Add router for navigation
@@ -171,6 +171,7 @@ const ChatInterface = () => {
                 setIsWaitingForResponse(false);
             }
         }
+        fetchUserConversations();
     };
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
