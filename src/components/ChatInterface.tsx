@@ -223,16 +223,18 @@ const ChatInterface = () => {
                                             <span>{new Date(conversation.created_at).toLocaleTimeString()}</span>
                                         </div>
                                         {activeConversationId !== conversation.conversation_id && (
-                                            <div className="flex space-x-1 mt-2">
-                                                
-                                                <button onClick={(e) => {
-                                                    e.stopPropagation(); // Prevent click from resuming conversation
-                                                    deleteConversation(conversation.conversation_id);
-                                                }} className="text-red-400 hover:underline">
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        )}
+    <div className="flex space-x-1 mt-2">
+        <button
+            onClick={(e) => {
+                e.stopPropagation(); // Prevent click from resuming conversation
+                deleteConversation(conversation.conversation_id);
+            }}
+            className="text-red-400 hover:underline"
+        >
+            <FaTrash />
+        </button>
+    </div>
+)}
                                     </div>
                                 ))}
                             </div>
