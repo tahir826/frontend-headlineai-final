@@ -86,7 +86,7 @@ function LandingPage() {
         <div className="bg-animated absolute inset-0 -z-10" />
 
         {/* Particles */}
-        {[...Array(200)].map((_, i) => (
+        {[...Array(120)].map((_, i) => (
           <span key={i} className="particle" style={{
             width: `${Math.random() * 8 + 3}px`,
             height: `${Math.random() * 8 + 3}px`,
