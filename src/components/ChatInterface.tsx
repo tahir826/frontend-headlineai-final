@@ -266,7 +266,7 @@ const ChatInterface = () => {
             <div className="flex items-center bg-gray-800 text-white rounded-lg shadow-md focus-within:ring-2 focus-within:ring-blue-500">
                 <input
                     type="text"
-                    placeholder="Type your message..."
+                    placeholder="Enter Your Query..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
