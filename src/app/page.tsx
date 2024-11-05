@@ -43,13 +43,13 @@ function LandingPage() {
   return (
     <main className="bg-black min-h-screen">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-black z-10">
-        <Image src={logo} alt="logo" className="h-auto w-40" />
+      <nav className="fixed top-0 w-full flex justify-between items-center px-6 py-4 z-10 backdrop-blur-sm bg-opacity-30 text-white">
+        <Image src={logo} alt="logo" className="h-auto w-56" />
         <div className="hidden md:flex gap-8">
-          <button onClick={() => scrollToSection("home")} className="text-white text-xl hover:text-blue-600 transition duration-300">Home</button>
-          <button onClick={() => scrollToSection("about")} className="text-white text-xl hover:text-blue-600 transition duration-300">About</button>
-          <button onClick={() => scrollToSection("features")} className="text-white text-xl hover:text-blue-600 transition duration-300">Features</button>
-          <button onClick={() => scrollToSection("blog")} className="text-white text-xl hover:text-blue-600 transition duration-300">Blog</button>
+          <button onClick={() => scrollToSection("home")} className="text-pink-400 font-bold text-2xl hover:text-blue-600 transition duration-300">Home</button>
+          <button onClick={() => scrollToSection("about")} className="text-pink-400 font-bold text-2xl hover:text-blue-600 transition duration-300">About</button>
+          <button onClick={() => scrollToSection("features")} className="text-pink-400 font-bold text-2xl hover:text-blue-600 transition duration-300">Features</button>
+          <button onClick={() => scrollToSection("blog")} className="text-pink-400 font-bold text-2xl hover:text-blue-600 transition duration-300">Blog</button>
         </div>
         <div>
           {isLoggedIn ? <UserIcon /> : (
@@ -86,7 +86,7 @@ function LandingPage() {
         <div className="bg-animated absolute inset-0 -z-10" />
 
         {/* Particles */}
-        {[...Array(20)].map((_, i) => (
+        {[...Array(200)].map((_, i) => (
           <span key={i} className="particle" style={{
             width: `${Math.random() * 8 + 3}px`,
             height: `${Math.random() * 8 + 3}px`,
