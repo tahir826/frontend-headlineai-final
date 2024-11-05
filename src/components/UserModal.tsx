@@ -23,7 +23,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, closeModal, user, anchorR
     localStorage.removeItem('access_token');
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    router.push('/login');
+    router.push('/');
   };
 
   useEffect(() => {
