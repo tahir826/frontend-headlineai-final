@@ -263,7 +263,7 @@ const ChatInterface = () => {
             </div>
 
             {/* Input */}
-            <div className="fixed bottom-4 left-0 right-0 max-w-2xl mx-auto px-4">
+            <div className="fixed bottom-4 mb-5 left-0 right-0 max-w-2xl mx-auto px-4">
                 <div className="flex items-center bg-gray-800 text-white rounded-lg shadow-md focus-within:ring-2 focus-within:ring-blue-500">
                     <input
                         type="text"
