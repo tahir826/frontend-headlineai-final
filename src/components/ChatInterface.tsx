@@ -20,6 +20,7 @@ const ChatInterface = () => {
 
     useEffect(() => {
         const storedToken = localStorage.getItem('access_token');
+startNewConversation();
         if (storedToken) {
             if (isTokenExpired(storedToken)) {
                 router.push('/login');  // Redirect to login if token is expired
