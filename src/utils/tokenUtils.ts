@@ -15,7 +15,7 @@ export function isTokenExpired(token: string) {
   
     try {
       // Make a request to your backend or auth server to refresh the token
-      const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/auth/token/refresh', {
+      const response = await fetch('https://healdineai.azurewebsites.net/auth/token/refresh', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

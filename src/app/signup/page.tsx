@@ -33,7 +33,7 @@ export default function SignupPage() {
     setLoading(true); // Set loading to true when signup starts
 
     try {
-      const response = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/auth/signup", {
+      const response = await fetch("https://healdineai.azurewebsites.net/auth/signup", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

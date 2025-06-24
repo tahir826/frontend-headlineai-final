@@ -36,7 +36,7 @@ export default function LoginPage() {
       formData.append('username', email);
       formData.append('password', password);
 
-      const response = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/auth/login", {
+      const response = await fetch("https://healdineai.azurewebsites.net/auth/login", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,7 +50,7 @@ export default function LoginPage() {
         localStorage.setItem('email', email);
 
         // Fetch user details after successful login
-        const userResponse = await fetch("https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/user/get_current_user_details/", {
+        const userResponse = await fetch("https://healdineai.azurewebsites.net/user/get_current_user_details/", {
           headers: {
             'Authorization': `Bearer ${data.access_token}`,
           },

@@ -43,7 +43,7 @@ startNewConversation();
     const fetchUserConversations = async () => {
         setLoading(true);
         try {
-            const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/get_all_user_conversations/', {
+            const response = await fetch('https://healdineai.azurewebsites.net/history/get_all_user_conversations/', {
                 headers: { 'Authorization': `Bearer ${access_token}` }
             });
             if (!response.ok) throw new Error('Failed to fetch conversations');
@@ -60,7 +60,7 @@ startNewConversation();
         setLoading(true);
         setMessages([]);
         try {
-            const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/start_new_conversation/', {
+            const response = await fetch('https://healdineai.azurewebsites.net/history/start_new_conversation/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ startNewConversation();
     const deleteConversation = async (conversationId: string) => {
         setLoading(true);
         try {
-            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/delete_conversation/${conversationId}`, {
+            const response = await fetch(`https://healdineai.azurewebsites.net/history/delete_conversation/${conversationId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${access_token}` }
             });
@@ -122,7 +122,7 @@ startNewConversation();
         setMessages([]);
         setActiveConversationId(conversationId); // Set the active conversation
         try {
-            const response = await fetch(`https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/history/resume_old_conversation/${conversationId}`, {
+            const response = await fetch(`https://healdineai.azurewebsites.net/history/resume_old_conversation/${conversationId}`, {
                 headers: { 'Authorization': `Bearer ${access_token}` }
             });
             if (!response.ok) throw new Error('Failed to resume conversation');
@@ -146,7 +146,7 @@ startNewConversation();
             setInput('');
             setIsWaitingForResponse(true);
             try {
-                const response = await fetch('https://headlineai.graycoast-7c0c32b7.eastus.azurecontainerapps.io/ai/call_agent', {
+                const response = await fetch('https://healdineai.azurewebsites.net/ai/call_agent', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
